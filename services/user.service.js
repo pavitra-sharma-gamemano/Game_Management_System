@@ -5,10 +5,14 @@ const CustomError = require("../errors/CustomError");
 
 exports.createUser = async (username, email, password, role) => {
   const hashedPassword = await bcrypt.hash(password, 8);
-  const user = await prisma.user.create({
-    data: { username, email, password: hashedPassword, role },
-  });
-  return user;
+  try {
+    const user = await prisma.user.create({
+      data: { username, email, password: hashedPassword, role },
+    });
+    return user;
+  } catch {
+    throw new CustomError("Email/Username already exist", 400);
+  }
 };
 
 exports.authenticateUser = async (email, password) => {
