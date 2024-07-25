@@ -9,10 +9,10 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 
 // Import Routes
-// let authRouter = require("./api/v1/routes/auth.routes");
-// let playerRouter = require("./api/v1/routes/player.routes");
-// let gamePlayRouter = require("./api/v1/routes/gamePlay.routes");
-// let gameRouter = require("./api/v1/routes/game.routes");
+const userRoutes = require("./routes/user.routes");
+const gameRoutes = require("./routes/game.routes");
+const scoreRoutes = require("./routes/score.routes");
+const errorMiddleware = require("./middleware/error.middleware");
 
 //Middlewares
 app.use(cors("*"));
@@ -27,10 +27,10 @@ app.get("/", (req, res) => {
 });
 
 //Routes
-// app.use("/v1/auth", authRouter);
-// app.use("/v1/player", playerRouter);
-// app.use("/v1/game", gamePlayRouter);
-// app.use("/v1/admin/game", gameRouter);
+app.use("/users", userRoutes);
+app.use("/games", gameRoutes);
+app.use("/scores", scoreRoutes);
+app.use(errorMiddleware);
 
 //Default Route
 app.use((req, res) => {
