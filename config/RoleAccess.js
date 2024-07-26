@@ -1,6 +1,6 @@
 const RoleAccess = {
-  ADMIN: ["get_game", "get_games", "update_record", "delete_record"],
-  PLAYER: ["get_game", "get_games"],
+  ADMIN: ["create_game", "update_game", "delete_game"],
+  PLAYER: ["add_score"],
 };
 
 module.exports = { RoleAccess };

@@ -1,17 +1,23 @@
 const jwt = require("jsonwebtoken");
+const CustomError = require("../errors/CustomError");
+const prisma = require("../config/db.js");
 
-module.exports = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   const token = req.header("Authorization").replace("Bearer ", "");
-  if (!token) {
-    return res.status(401).send({ error: "No token provided." });
-  }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+
+    if (!user) {
+      throw new CustomError("Authentication failed", 401);
+    }
+
+    req.user = user;
     next();
-  } catch (err) {
-    console.error(err);
-    res.status(401).send({ error: "Invalid token." });
+  } catch (error) {
+    next(new CustomError("Authentication failed", 401));
   }
 };
+
+module.exports = authMiddleware;

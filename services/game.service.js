@@ -1,31 +1,41 @@
-const prisma = require("../config/db.js");
+const CustomError = require("../errors/CustomError");
+const Game = require("../models/game.model");
 
-exports.createGame = async (name, genre, releaseDate, userId) => {
-  const game = await prisma.game.create({
-    data: { name, genre, releaseDate, createdById: userId },
-  });
+exports.createGame = async (name, genre, createdBy) => {
+  const game = await Game.createGame(name, genre, createdBy);
   return game;
 };
 
 exports.getGames = async () => {
-  const games = await prisma.game.findMany();
+  const games = await Game.getAllGames();
   return games;
 };
 
 exports.getGameById = async (id) => {
-  const game = await prisma.game.findUnique({ where: { id: parseInt(id) } });
-  if (!game) throw new Error("Game not found");
+  const game = await Game.getGameById(id);
+
+  if (!game) {
+    throw new CustomError("Game not found", 404);
+  }
+
   return game;
 };
 
-exports.updateGame = async (id, name, genre, releaseDate) => {
-  const game = await prisma.game.update({
-    where: { id: parseInt(id) },
-    data: { name, genre, releaseDate },
-  });
+exports.updateGame = async (id, name, genre) => {
+  const checkGame = await Game.getGameById(id);
+
+  if (!checkGame) {
+    throw new CustomError("Game not found", 404);
+  }
+  const game = await Game.updateGame(id, name, genre);
   return game;
 };
 
 exports.deleteGame = async (id) => {
-  await prisma.game.delete({ where: { id: parseInt(id) } });
+  const checkGame = await Game.getGameById(id);
+
+  if (!checkGame) {
+    throw new CustomError("Game not found", 404);
+  }
+  await Game.deleteGame(id);
 };

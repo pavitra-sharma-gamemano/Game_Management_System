@@ -4,11 +4,9 @@ const validate = (schema, property) => {
     if (error) {
       const { details } = error;
       const message = details.map((i) => i.message).join(",");
-      console.error("error", message);
-      res.status(422).json({ error: message });
-    } else {
-      next();
+      return res.status(422).json({ error: message });
     }
+    next();
   };
 };
 

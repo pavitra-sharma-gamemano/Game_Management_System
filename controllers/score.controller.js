@@ -1,10 +1,10 @@
 const scoreService = require("../services/score.service");
 
 exports.addScore = async (req, res, next) => {
+  const { score, gameId } = req.body;
   try {
-    const { score, gameId } = req.body;
-    const newScore = await scoreService.addScore(req.user.id, gameId, score);
-    res.status(201).send(newScore);
+    const result = await scoreService.addScore(score, gameId, req.user.id);
+    res.status(201).json(result);
   } catch (error) {
     next(error);
   }
@@ -12,9 +12,8 @@ exports.addScore = async (req, res, next) => {
 
 exports.getScoresByUser = async (req, res, next) => {
   try {
-    const { userId } = req.params;
-    const scores = await scoreService.getScoresByUser(userId);
-    res.send(scores);
+    const scores = await scoreService.getScoresByUser(req.user.id);
+    res.json(scores);
   } catch (error) {
     next(error);
   }
@@ -24,7 +23,7 @@ exports.getScoresByGame = async (req, res, next) => {
   try {
     const { gameId } = req.params;
     const scores = await scoreService.getScoresByGame(gameId);
-    res.send(scores);
+    res.json(scores);
   } catch (error) {
     next(error);
   }

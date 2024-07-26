@@ -12,7 +12,7 @@ const bodyParser = require("body-parser");
 const userRoutes = require("./routes/user.routes");
 const gameRoutes = require("./routes/game.routes");
 const scoreRoutes = require("./routes/score.routes");
-const errorMiddleware = require("./middleware/error.middleware");
+const errorHandler = require("./middleware/error.middleware");
 
 //Middlewares
 app.use(cors("*"));
@@ -30,7 +30,7 @@ app.get("/", (req, res) => {
 app.use("/users", userRoutes);
 app.use("/games", gameRoutes);
 app.use("/scores", scoreRoutes);
-app.use(errorMiddleware);
+app.use(errorHandler);
 
 //Default Route
 app.use((req, res) => {

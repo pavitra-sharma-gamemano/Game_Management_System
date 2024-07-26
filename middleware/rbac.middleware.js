@@ -1,9 +1,13 @@
+const CustomError = require("../errors/CustomError");
 const { RoleAccess } = require("../config/RoleAccess");
 
-module.exports = (allowedRoles) => (req, res, next) => {
-  const userRole = req.user.role;
-  if (!RoleAccess[userRole] || !allowedRoles.some((role) => RoleAccess[userRole].includes(role))) {
-    return res.status(403).send({ error: "Access denied." });
-  }
-  next();
+const authorize = (action) => {
+  return (req, res, next) => {
+    if (RoleAccess[req.user.role].includes(action)) {
+      return next();
+    }
+    next(new CustomError("Unauthorized", 403));
+  };
 };
+
+module.exports = authorize;

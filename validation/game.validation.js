@@ -1,18 +1,17 @@
-const Joi = require('joi');
+const Joi = require("joi");
 
-const gameSchema = Joi.object({
-  name: Joi.string().min(3).max(50).required(),
-  genre: Joi.string().min(3).max(50).required(),
-  releaseDate: Joi.date().required()
+exports.gameSchema = Joi.object({
+  name: Joi.string().required(),
+  genre: Joi.string().required(),
 });
 
-const gameUpdateSchema = Joi.object({
-  name: Joi.string().min(3).max(50),
-  genre: Joi.string().min(3).max(50),
-  releaseDate: Joi.date()
+exports.gameUpdateSchema = Joi.object({
+  name: Joi.string().required(),
+  genre: Joi.string().required(),
 });
 
-module.exports = {
-  gameSchema,
-  gameUpdateSchema
-};
+exports.idSchema = Joi.object({
+  id: Joi.number().integer().required(),
+});
+
+exports.emptySchema = Joi.object({});
