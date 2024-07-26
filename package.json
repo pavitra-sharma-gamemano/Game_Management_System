@@ -20,6 +20,7 @@
   },
   "scripts": {
     "lint": "npx eslint .",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "test": "jest"
   }
 }

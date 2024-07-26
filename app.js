@@ -6,7 +6,6 @@ const dotenv = require("dotenv");
 dotenv.config({ path: "/.env" });
 const prisma = require("./config/db.js");
 const cors = require("cors");
-const bodyParser = require("body-parser");
 
 // Import Routes
 const userRoutes = require("./routes/user.routes");
@@ -16,8 +15,7 @@ const errorHandler = require("./middleware/error.middleware");
 
 //Middlewares
 app.use(cors("*"));
-app.use(bodyParser.json()); // Parse JSON data
-app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded data
+app.use(express.json()); // Parse JSON data
 app.use(morgan("dev"));
 
 //Version
