@@ -6,7 +6,7 @@ const User = require("../models/user.model");
 exports.createUser = async (username, email, password, role) => {
   const existingUser = await User.findUsers(username, email);
 
-  if (existingUser.length) {
+  if (/*existingUser &&*/ existingUser.length) {
     throw new CustomError("Email/Username already exists", 400);
   }
 

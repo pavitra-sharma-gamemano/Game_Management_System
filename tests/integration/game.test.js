@@ -13,6 +13,7 @@ describe("Game Management", () => {
 
     const res = await request(app).post("/users/register").send({ username: "admin", email: "admin@example.com", password: "password", role: "ADMIN" });
     const loginRes = await request(app).post("/users/login").send({ email: "admin@example.com", password: "password" });
+    console.log(loginRes);
     adminToken = loginRes.body.token;
   });
 

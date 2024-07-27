@@ -3,7 +3,14 @@ const CustomError = require("../errors/CustomError");
 const prisma = require("../config/db.js");
 
 const authMiddleware = async (req, res, next) => {
-  const token = req.header("Authorization").replace("Bearer ", "");
+  // Check for Authorization header
+  const authHeader = req.header("Authorization");
+
+  if (!authHeader) {
+    return next(new CustomError("No token provided", 401));
+  }
+
+  const token = authHeader.replace("Bearer ", "");
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -13,9 +20,14 @@ const authMiddleware = async (req, res, next) => {
       throw new CustomError("Authentication failed", 401);
     }
 
-    req.user = user;
+    req.user = user; // Attach user data to request
     next();
   } catch (error) {
+    // Handle token verification errors
+    if (error instanceof jwt.JsonWebTokenError) {
+      return next(new CustomError("Invalid token", 401));
+    }
+
     next(new CustomError("Authentication failed", 401));
   }
 };

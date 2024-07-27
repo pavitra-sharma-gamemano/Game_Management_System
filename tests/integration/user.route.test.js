@@ -1,139 +1,173 @@
 /* eslint-disable no-undef */
 const request = require("supertest");
-const app = require("../../app.js");
-const prisma = require("../../config/db.js");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const User = require("../../models/user.model");
+const app = require("../../app");
 
-describe("User Endpoints", () => {
-  beforeAll(async () => {
-    await prisma.user.deleteMany();
-  });
+jest.mock("bcrypt");
+jest.mock("jsonwebtoken");
+jest.mock("../../models/user.model");
 
-  afterAll(async () => {
-    await prisma.$disconnect();
-  });
+let server;
 
-  it("should register a new user", async () => {
-    const res = await request(app).post("/users/register").send({
-      username: "testuser",
-      email: "test@example.com",
-      password: "test1234",
-      role: "PLAYER",
-    });
-    expect(res.statusCode).toEqual(201);
-    expect(res.body).toHaveProperty("id");
-    expect(res.body).toHaveProperty("username", "testuser");
-  });
-
-  it("should login an existing user", async () => {
-    const res = await request(app).post("/users/login").send({
-      email: "test@example.com",
-      password: "test1234",
-    });
-    expect(res.statusCode).toEqual(200);
-    expect(res.body).toHaveProperty("token");
-  });
-
-  it("should get the user profile", async () => {
-    const loginRes = await request(app).post("/users/login").send({
-      email: "test@example.com",
-      password: "test1234",
-    });
-    const token = loginRes.body.token;
-
-    const profileRes = await request(app).get("/users/profile").set("Authorization", `Bearer ${token}`);
-    expect(profileRes.statusCode).toEqual(200);
-    expect(profileRes.body).toHaveProperty("username", "testuser");
-  });
+beforeAll((done) => {
+  // Suppress console.error during tests
+  jest.spyOn(console, "error").mockImplementation(() => {});
+  process.env.JWT_SECRET = "sample";
+  server = app.listen(3001, done); // Start server on a different port
 });
-const request = require("supertest");
-const app = require("../../src/app");
-const prisma = require("../../src/config/db.config");
+
+afterAll((done) => {
+  jest.restoreAllMocks();
+  server.close(done); // Ensure the server is closed after tests
+});
 
 describe("User Routes", () => {
-  let token;
-
-  beforeAll(async () => {
-    await prisma.$connect();
-  });
-
-  afterAll(async () => {
-    await prisma.$disconnect();
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
   describe("POST /users/register", () => {
-    it("should register a user successfully", async () => {
+    it("should register a new user", async () => {
+      User.findUsers.mockResolvedValue([]);
+      User.createUser.mockResolvedValue({
+        id: 1,
+        username: "testuser",
+        email: "test@example.com",
+        password: "hashedPassword",
+        role: "PLAYER",
+      });
+      bcrypt.hash.mockResolvedValue("hashedPassword");
+
       const res = await request(app).post("/users/register").send({
-        username: "newuser",
-        email: "newuser@example.com",
+        username: "testuser",
+        email: "test@example.com",
         password: "password123",
         role: "PLAYER",
       });
 
-      expect(res.statusCode).toEqual(201);
+      expect(res.status).toBe(201);
       expect(res.body).toHaveProperty("id");
-      expect(res.body).toHaveProperty("username", "newuser");
-      expect(res.body).toHaveProperty("email", "newuser@example.com");
-      expect(res.body).not.toHaveProperty("password"); // Ensure password is not returned
+      expect(res.body).toHaveProperty("username", "testuser");
+      expect(res.body).toHaveProperty("email", "test@example.com");
+      expect(bcrypt.hash).toHaveBeenCalledWith("password123", 8);
+      expect(User.createUser).toHaveBeenCalledWith("testuser", "test@example.com", "hashedPassword", "PLAYER");
     });
 
-    it("should return 400 for duplicate email", async () => {
-      await request(app).post("/users/register").send({
-        username: "newuser",
-        email: "newuser@example.com",
-        password: "password123",
-        role: "PLAYER",
-      });
+    it("should return 400 if email or username already exists", async () => {
+      User.findUsers.mockResolvedValue([{ id: 1, username: "testuser", email: "test@example.com" }]);
 
       const res = await request(app).post("/users/register").send({
-        username: "newuser",
-        email: "newuser@example.com",
+        username: "testuser",
+        email: "test@example.com",
         password: "password123",
         role: "PLAYER",
       });
 
-      expect(res.statusCode).toEqual(400);
-      expect(res.body).toHaveProperty("message", "Email/Username already exist");
+      expect(res.status).toBe(400);
+      expect(res.body).toHaveProperty("message", "Email/Username already exists");
+      expect(User.findUsers).toHaveBeenCalledWith("testuser", "test@example.com");
+    });
+
+    it("should return 422 if request body is invalid", async () => {
+      const res = await request(app).post("/users/register").send({
+        username: "testuser",
+        email: "invalid-email",
+        password: "password123",
+        role: "PLAYER",
+      });
+
+      expect(res.status).toBe(422);
+      expect(res.body).toHaveProperty("errors");
     });
   });
 
   describe("POST /users/login", () => {
-    it("should login a user successfully", async () => {
+    it("should login a user and return a token", async () => {
+      User.getUserViaEmail.mockResolvedValue({
+        id: 1,
+        username: "testuser",
+        email: "test@example.com",
+        password: "hashedPassword",
+        role: "PLAYER",
+      });
+      bcrypt.compare.mockResolvedValue(true);
+      jwt.sign.mockReturnValue("fakeToken");
+
       const res = await request(app).post("/users/login").send({
-        email: "newuser@example.com",
+        email: "test@example.com",
         password: "password123",
       });
 
-      expect(res.statusCode).toEqual(200);
-      expect(res.body).toHaveProperty("token");
-      token = res.body.token; // Save token for authenticated tests
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty("token", "fakeToken");
+      expect(User.getUserViaEmail).toHaveBeenCalledWith("test@example.com");
+      expect(bcrypt.compare).toHaveBeenCalledWith("password123", "hashedPassword");
+      expect(jwt.sign).toHaveBeenCalledWith({ id: 1, role: "PLAYER" }, process.env.JWT_SECRET, { expiresIn: "1h" });
     });
 
-    it("should return 401 for invalid credentials", async () => {
+    it("should return 401 if email or password is incorrect", async () => {
+      User.getUserViaEmail.mockResolvedValue(null);
+
       const res = await request(app).post("/users/login").send({
-        email: "newuser@example.com",
-        password: "wrongpassword",
+        email: "test@example.com",
+        password: "password123",
       });
 
-      expect(res.statusCode).toEqual(401);
-      expect(res.body).toHaveProperty("message", "Invalid credentials");
+      expect(res.status).toBe(401);
+      expect(res.body).toHaveProperty("message", "Invalid email or password");
+      expect(User.getUserViaEmail).toHaveBeenCalledWith("test@example.com");
+    });
+
+    it("should return 422 if request body is invalid", async () => {
+      const res = await request(app).post("/users/login").send({
+        email: "test@example.com",
+      });
+
+      expect(res.status).toBe(422);
+      expect(res.body).toHaveProperty("errors");
     });
   });
 
   describe("GET /users/profile", () => {
-    it("should return user profile for authenticated user", async () => {
-      const res = await request(app).get("/users/profile").set("Authorization", `Bearer ${token}`);
+    it("should return the user profile", async () => {
+      const token = "Bearer fakeToken";
+      jwt.verify.mockReturnValue({ id: 1, role: "PLAYER" }); // Mock the token verification
 
-      expect(res.statusCode).toEqual(200);
-      expect(res.body).toHaveProperty("username", "newuser");
+      User.getUserViaId.mockResolvedValue({
+        id: 1,
+        username: "testuser",
+        email: "test@example.com",
+        role: "PLAYER",
+      });
+
+      const res = await request(app).get("/users/profile").set("Authorization", token);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty("id", 1);
+      expect(res.body).toHaveProperty("username", "testuser");
+      expect(res.body).toHaveProperty("email", "test@example.com");
     });
 
-    it("should return 401 for unauthenticated user", async () => {
+    it("should return 401 if no token is provided", async () => {
       const res = await request(app).get("/users/profile");
 
-      expect(res.statusCode).toEqual(401);
-      expect(res.body).toHaveProperty("message", "Authentication required");
+      expect(res.status).toBe(401);
+      expect(res.body).toHaveProperty("message", "No token provided");
+    });
+
+    it("should return 404 if user is not found", async () => {
+      const token = "Bearer fakeToken";
+      jwt.verify = jest.fn().mockReturnValue({ id: 1, role: "PLAYER" });
+
+      User.getUserViaId.mockResolvedValue(null);
+
+      const res = await request(app).get("/users/profile").set("Authorization", token);
+
+      expect(res.status).toBe(404);
+      expect(res.body).toHaveProperty("message", "User not found");
+      expect(User.getUserViaId).toHaveBeenCalledWith(1);
     });
   });
-
-  // Add more integration tests for other routes
 });

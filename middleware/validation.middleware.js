@@ -3,8 +3,8 @@ const validate = (schema, property) => {
     const { error } = schema.validate(req[property]);
     if (error) {
       const { details } = error;
-      const message = details.map((i) => i.message).join(",");
-      return res.status(422).json({ error: message });
+      const errors = details.map((i) => i.message); // Collect errors into an array
+      return res.status(422).json({ errors }); // Change to an array format
     }
     next();
   };
