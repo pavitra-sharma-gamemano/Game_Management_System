@@ -1,7 +1,7 @@
 module.exports = {
   testEnvironment: "node",
   verbose: true,
-  forceExit: true,
+  // forceExit: true,
   clearMocks: true,
   setupFilesAfterEnv: ["./jest.setup.js"],
 };

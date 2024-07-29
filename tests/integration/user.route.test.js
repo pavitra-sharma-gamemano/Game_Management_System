@@ -15,7 +15,8 @@ beforeAll((done) => {
   // Suppress console.error during tests
   jest.spyOn(console, "error").mockImplementation(() => {});
   process.env.JWT_SECRET = "sample";
-  server = app.listen(3001, done); // Start server on a different port
+  process.env.PORT = 3003;
+  server = app.listen(3003, done); // Start server on a different port
 });
 
 afterAll((done) => {

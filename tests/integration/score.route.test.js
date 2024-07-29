@@ -18,14 +18,15 @@ beforeAll((done) => {
   // Suppress console.error during tests
   jest.spyOn(console, "error").mockImplementation(() => {});
   process.env.JWT_SECRET = "sample";
-  server = app.listen(3001, done); // Start server on a different port
+  process.env.PORT = 3002;
+  server = app.listen(3002, done); // Start server on a different port
   token = "fakeToken";
   jwt.verify.mockReturnValue({ id: 1, role: "PLAYER" }); // Mock the token verification
 });
 
 afterAll((done) => {
   jest.restoreAllMocks();
-  server.close(done); // Ensure the server is closed after tests
+  server.close(done);
 });
 
 describe("Score Routes", () => {

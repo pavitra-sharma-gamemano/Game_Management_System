@@ -15,15 +15,8 @@ let token;
 beforeAll((done) => {
   jest.spyOn(console, "error").mockImplementation(() => {});
   process.env.JWT_SECRET = "sample";
+  process.env.PORT = 3001;
   server = app.listen(3001, done);
-  token = "fakeToken"; // Mock token
-  jwt.verify.mockReturnValue({ id: 1, role: "ADMIN" }); // Mock the token verification
-  User.getUserViaId.mockResolvedValue({
-    id: 1,
-    username: "test_user",
-    email: "test@example.com",
-    role: "ADMIN",
-  });
 });
 
 afterAll((done) => {
