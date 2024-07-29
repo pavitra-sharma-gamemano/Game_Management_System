@@ -3,7 +3,6 @@ const { RoleAccess } = require("../config/RoleAccess");
 
 const authorize = (action) => {
   return (req, res, next) => {
-    console.log(req.user.role + "************************************************************");
     if (RoleAccess[req.user.role].includes(action)) {
       return next();
     }
