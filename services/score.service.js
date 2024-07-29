@@ -3,7 +3,6 @@ const Game = require("../models/game.model");
 const Score = require("../models/score.model");
 
 exports.addScore = async (score, gameId, userId) => {
-  // Validate input parameters
   if (typeof score !== "number" || score < 0) {
     throw new CustomError("Invalid score value", 400);
   }

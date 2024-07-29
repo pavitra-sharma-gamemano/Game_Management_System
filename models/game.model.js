@@ -36,7 +36,5 @@ exports.getGameById = async (id) => {
 
 exports.deleteGame = async (id) => {
   const game = (await prisma.game.delete({ where: { id } })) || null;
-
-  console.log(game);
   return game;
 };

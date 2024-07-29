@@ -15,7 +15,7 @@ const errorHandler = require("./middleware/error.middleware");
 
 //Middlewares
 app.use(cors("*"));
-app.use(express.json()); // Parse JSON data
+app.use(express.json());
 app.use(morgan("dev"));
 
 //Version

@@ -20,14 +20,12 @@ const authMiddleware = async (req, res, next) => {
       throw new CustomError("Authentication failed", 401);
     }
 
-    req.user = user; // Attach user data to request
+    req.user = user;
     next();
   } catch (error) {
-    // Handle token verification errors
     if (error instanceof jwt.JsonWebTokenError) {
       return next(new CustomError("Invalid token", 401));
     }
-
     next(new CustomError("Authentication failed", 401));
   }
 };

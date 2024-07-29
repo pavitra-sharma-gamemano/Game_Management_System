@@ -27,8 +27,8 @@ afterAll((done) => {
 describe("Game Routes", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    token = "fakeToken"; // Mock token
-    jwt.verify.mockReturnValue({ id: 1, role: "ADMIN" }); // Mock the token verification
+    token = "fakeToken";
+    jwt.verify.mockReturnValue({ id: 1, role: "ADMIN" });
     User.getUserViaId.mockResolvedValue({
       id: 1,
       username: "test_user",
@@ -62,7 +62,6 @@ describe("Game Routes", () => {
     });
 
     it("should return 403 if user is not authorized", async () => {
-      token = jwt.sign({ id: 1, role: "PLAYER" }, process.env.JWT_SECRET); // Mock token with PLAYER role
       User.getUserViaId.mockResolvedValue({
         id: 1,
         username: "test_user",
@@ -84,7 +83,6 @@ describe("Game Routes", () => {
       const games = [{ id: 1, name: "Game 1", genre: "Action" }];
       Game.getAllGames.mockResolvedValue(games);
 
-      // Validate empty body and query as per your middleware
       const res = await request(app).get("/games").send({}).query({});
 
       expect(res.status).toBe(200);
@@ -150,7 +148,7 @@ describe("Game Routes", () => {
     });
 
     it("should return 403 if user is not authorized", async () => {
-      token = jwt.sign({ id: 1, role: "PLAYER" }, process.env.JWT_SECRET); // Mock token with PLAYER role
+      jwt.verify.mockReturnValue({ id: 1, role: "PLAYER" });
       User.getUserViaId.mockResolvedValue({
         id: 1,
         username: "test_user",
@@ -180,7 +178,7 @@ describe("Game Routes", () => {
 
     it("should return 422 if request body is invalid", async () => {
       const res = await request(app).put("/games/1").set("Authorization", `Bearer ${token}`).send({
-        name: "", // Invalid name
+        name: "",
         genre: "Adventure",
       });
 
@@ -189,38 +187,44 @@ describe("Game Routes", () => {
     });
   });
 
-  //   describe("DELETE /games/:id", () => {
-  //     it("should delete a game", async () => {
-  //       Game.getGameById.mockResolvedValue({ id: 1, name: "Game 1", genre: "Action" });
+  describe("DELETE /games/:id", () => {
+    it("should delete a game", async () => {
+      Game.getGameById.mockResolvedValue({ id: 1, name: "Game 1", genre: "Action" });
 
-  //       const res = await request(app).delete("/games/1").set("Authorization", `Bearer ${token}`);
+      const res = await request(app).delete("/games/1").set("Authorization", `Bearer ${token}`);
 
-  //       expect(res.status).toBe(204);
-  //     });
+      expect(res.status).toBe(200);
+    });
 
-  //     it("should return 403 if user is not authorized", async () => {
-  //       token = jwt.sign({ id: 1, role: "PLAYER" }, process.env.JWT_SECRET); // Mock token with PLAYER role
+    it("should return 403 if user is not authorized", async () => {
+      jwt.verify.mockReturnValue({ id: 1, role: "PLAYER" });
+      User.getUserViaId.mockResolvedValue({
+        id: 1,
+        username: "test_user",
+        email: "test@example.com",
+        role: "PLAYER",
+      });
 
-  //       const res = await request(app).delete("/games/1").set("Authorization", `Bearer ${token}`);
+      const res = await request(app).delete("/games/1").set("Authorization", `Bearer ${token}`);
 
-  //       expect(res.status).toBe(403);
-  //       expect(res.body).toHaveProperty("message", "Unauthorized");
-  //     });
+      expect(res.status).toBe(403);
+      expect(res.body).toHaveProperty("message", "Unauthorized");
+    });
 
-  //     it("should return 404 if game not found", async () => {
-  //       Game.getGameById.mockResolvedValue(null);
+    it("should return 404 if game not found", async () => {
+      Game.getGameById.mockResolvedValue(null);
 
-  //       const res = await request(app).delete("/games/999").set("Authorization", `Bearer ${token}`);
+      const res = await request(app).delete("/games/999").set("Authorization", `Bearer ${token}`);
 
-  //       expect(res.status).toBe(404);
-  //       expect(res.body).toHaveProperty("message", "Game not found");
-  //     });
+      expect(res.status).toBe(404);
+      expect(res.body).toHaveProperty("message", "Game not found");
+    });
 
-  //     it("should return 422 if ID is invalid", async () => {
-  //       const res = await request(app).delete("/games/invalid").set("Authorization", `Bearer ${token}`);
+    it("should return 422 if ID is invalid", async () => {
+      const res = await request(app).delete("/games/invalid").set("Authorization", `Bearer ${token}`);
 
-  //       expect(res.status).toBe(422);
-  //       expect(res.body).toHaveProperty("errors");
-  //     });
-  //   });
+      expect(res.status).toBe(422);
+      expect(res.body).toHaveProperty("errors");
+    });
+  });
 });

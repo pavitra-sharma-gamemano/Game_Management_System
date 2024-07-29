@@ -9,38 +9,12 @@ const router = express.Router();
 
 router.post("/", authMiddleware, authorize("create_game"), validate(gameSchema, "body"), gameController.createGame);
 
-router.get(
-  "/",
-  validate(emptySchema, "body"), // Validate empty body
-  validate(emptySchema, "query"), // Validate empty query
-  gameController.getGames
-);
+router.get("/", validate(emptySchema, "body"), validate(emptySchema, "query"), gameController.getGames);
 
-router.get(
-  "/:id",
-  validate(idSchema, "params"), // Validate id parameter
-  validate(emptySchema, "body"), // Validate empty body
-  validate(emptySchema, "query"), // Validate empty query
-  gameController.getGame
-);
+router.get("/:id", validate(idSchema, "params"), validate(emptySchema, "body"), validate(emptySchema, "query"), gameController.getGame);
 
-router.put(
-  "/:id",
-  authMiddleware,
-  authorize("update_game"),
-  validate(idSchema, "params"), // Validate id parameter
-  validate(gameUpdateSchema, "body"),
-  gameController.updateGame
-);
+router.put("/:id", authMiddleware, authorize("update_game"), validate(idSchema, "params"), validate(gameUpdateSchema, "body"), gameController.updateGame);
 
-router.delete(
-  "/:id",
-  authMiddleware,
-  authorize("delete_game"),
-  validate(idSchema, "params"), // Validate id parameter
-  validate(emptySchema, "body"), // Validate empty body
-  validate(emptySchema, "query"), // Validate empty query
-  gameController.deleteGame
-);
+router.delete("/:id", authMiddleware, authorize("delete_game"), validate(idSchema, "params"), validate(emptySchema, "body"), validate(emptySchema, "query"), gameController.deleteGame);
 
 module.exports = router;
