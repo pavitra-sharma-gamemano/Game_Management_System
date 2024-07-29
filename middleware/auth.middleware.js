@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const CustomError = require("../errors/CustomError");
-const prisma = require("../config/db.js");
+const User = require("../models/user.model");
 
 const authMiddleware = async (req, res, next) => {
   // Check for Authorization header
@@ -14,7 +14,7 @@ const authMiddleware = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+    const user = await User.getUserViaId(decoded.id);
 
     if (!user) {
       throw new CustomError("Authentication failed", 401);

@@ -10,6 +10,7 @@ router.post("/", authMiddleware, authorize("add_score"), validate(scoreSchema, "
 router.get("/user", authMiddleware, validate(emptySchema, "body"), validate(emptySchema, "query"), scoreController.getScoresByUser);
 router.get(
   "/game/:gameId",
+  authMiddleware,
   validate(idSchema, "params"), // Validate id parameter
   validate(emptySchema, "body"), // Validate empty body
   validate(emptySchema, "query"), // Validate empty query

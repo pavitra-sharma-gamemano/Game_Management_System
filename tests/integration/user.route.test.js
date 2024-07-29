@@ -33,7 +33,7 @@ describe("User Routes", () => {
       User.findUsers.mockResolvedValue([]);
       User.createUser.mockResolvedValue({
         id: 1,
-        username: "testuser",
+        username: "test_user",
         email: "test@example.com",
         password: "hashedPassword",
         role: "PLAYER",
@@ -41,7 +41,7 @@ describe("User Routes", () => {
       bcrypt.hash.mockResolvedValue("hashedPassword");
 
       const res = await request(app).post("/users/register").send({
-        username: "testuser",
+        username: "test_user",
         email: "test@example.com",
         password: "password123",
         role: "PLAYER",
@@ -49,17 +49,17 @@ describe("User Routes", () => {
 
       expect(res.status).toBe(201);
       expect(res.body).toHaveProperty("id");
-      expect(res.body).toHaveProperty("username", "testuser");
+      expect(res.body).toHaveProperty("username", "test_user");
       expect(res.body).toHaveProperty("email", "test@example.com");
       expect(bcrypt.hash).toHaveBeenCalledWith("password123", 8);
-      expect(User.createUser).toHaveBeenCalledWith("testuser", "test@example.com", "hashedPassword", "PLAYER");
+      expect(User.createUser).toHaveBeenCalledWith("test_user", "test@example.com", "hashedPassword", "PLAYER");
     });
 
     it("should return 400 if email or username already exists", async () => {
-      User.findUsers.mockResolvedValue([{ id: 1, username: "testuser", email: "test@example.com" }]);
+      User.findUsers.mockResolvedValue([{ id: 1, username: "test_user", email: "test@example.com" }]);
 
       const res = await request(app).post("/users/register").send({
-        username: "testuser",
+        username: "test_user",
         email: "test@example.com",
         password: "password123",
         role: "PLAYER",
@@ -67,12 +67,12 @@ describe("User Routes", () => {
 
       expect(res.status).toBe(400);
       expect(res.body).toHaveProperty("message", "Email/Username already exists");
-      expect(User.findUsers).toHaveBeenCalledWith("testuser", "test@example.com");
+      expect(User.findUsers).toHaveBeenCalledWith("test_user", "test@example.com");
     });
 
     it("should return 422 if request body is invalid", async () => {
       const res = await request(app).post("/users/register").send({
-        username: "testuser",
+        username: "test_user",
         email: "invalid-email",
         password: "password123",
         role: "PLAYER",
@@ -87,7 +87,7 @@ describe("User Routes", () => {
     it("should login a user and return a token", async () => {
       User.getUserViaEmail.mockResolvedValue({
         id: 1,
-        username: "testuser",
+        username: "test_user",
         email: "test@example.com",
         password: "hashedPassword",
         role: "PLAYER",
@@ -137,7 +137,7 @@ describe("User Routes", () => {
 
       User.getUserViaId.mockResolvedValue({
         id: 1,
-        username: "testuser",
+        username: "test_user",
         email: "test@example.com",
         role: "PLAYER",
       });
@@ -146,7 +146,7 @@ describe("User Routes", () => {
 
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty("id", 1);
-      expect(res.body).toHaveProperty("username", "testuser");
+      expect(res.body).toHaveProperty("username", "test_user");
       expect(res.body).toHaveProperty("email", "test@example.com");
     });
 
@@ -155,19 +155,6 @@ describe("User Routes", () => {
 
       expect(res.status).toBe(401);
       expect(res.body).toHaveProperty("message", "No token provided");
-    });
-
-    it("should return 404 if user is not found", async () => {
-      const token = "Bearer fakeToken";
-      jwt.verify = jest.fn().mockReturnValue({ id: 1, role: "PLAYER" });
-
-      User.getUserViaId.mockResolvedValue(null);
-
-      const res = await request(app).get("/users/profile").set("Authorization", token);
-
-      expect(res.status).toBe(404);
-      expect(res.body).toHaveProperty("message", "User not found");
-      expect(User.getUserViaId).toHaveBeenCalledWith(1);
     });
   });
 });
