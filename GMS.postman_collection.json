@@ -1,0 +1,284 @@
+{
+	"info": {
+		"_postman_id": "5ecfc9a2-40c3-4a67-a979-f414a57da78c",
+		"name": "GMS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "32148794"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Post: Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"password\": \"p10000001\",\r\n    \"email\":\"player@sample.com\"\r\n}\r\n// {\r\n//     \"email\":\"admin@sample.com\",\r\n//     \"password\": \"p10000001\"\r\n// }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/users/login"
+					},
+					"response": []
+				},
+				{
+					"name": "Post: Create Player Account",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "// {\r\n//     \"username\": \"admin\",\r\n//     \"password\": \"p10000001\",\r\n//     \"email\":\"admin@sample.com\",\r\n//     \"role\":\"ADMIN\"\r\n// }\r\n{\r\n    \"username\": \"player\",\r\n    \"password\": \"p10000001\",\r\n    \"email\":\"player@sample.com\",\r\n    \"role\":\"PLAYER\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/users/register"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Player",
+			"item": [
+				{
+					"name": "Get: Player Information",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/users/profile"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Game",
+			"item": [
+				{
+					"name": "Get: Game",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/games/"
+					},
+					"response": []
+				},
+				{
+					"name": "Post: Create Game",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{    \r\n    \"name\": \"GoldenEagle\",\r\n    \"genre\": \"Ways\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/games"
+					},
+					"response": []
+				},
+				{
+					"name": "Put: Update Game",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{    \r\n    \"name\": \"GoldenEagle\",\r\n    \"genre\": \"Ways\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/games/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Put: Delete Game",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/games/3"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Score",
+			"item": [
+				{
+					"name": "Post: Score",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"score\":50,\r\n    \"gameId\":2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/scores/"
+					},
+					"response": []
+				},
+				{
+					"name": "Get: Score by UserId",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/scores/user"
+					},
+					"response": []
+				},
+				{
+					"name": "Get: Score by GameId",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/scores/game/2"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": {
+			"token": "{{token}}"
+		}
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"let env = pm.collectionVariables.get(\"env\");",
+					"let url = null;",
+					"",
+					"if(env === \"development\"){",
+					"    url = \"http://localhost:3000\";",
+					"}",
+					"",
+					"pm.variables.set('url', url);",
+					"",
+					"const getTokenRequest = {",
+					"  method: 'POST',",
+					"  url: `${url}/users/login`,",
+					"   header: {",
+					"        'content-type': 'application/json'",
+					"    },",
+					"   body: {",
+					"        mode: 'raw',",
+					"        // raw: JSON.stringify({\"email\":\"player@sample.com\",\"password\":\"p10000001\"})",
+					"        raw: JSON.stringify({\"email\":\"admin@sample.com\",\"password\":\"p10000001\"})",
+					"    }",
+					"};",
+					"",
+					"pm.sendRequest(getTokenRequest, (err, response) => {",
+					"  const jsonResponse = response.json();",
+					"  const token = jsonResponse.token;",
+					"  console.log(err)",
+					"  pm.variables.set('token', token);",
+					"});"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "env",
+			"value": "development",
+			"type": "string"
+		}
+	]
+}
